@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manobhi Sri Ram - Gen AI Engineer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ff88;
+            --secondary: #9d4edd;
+            --tertiary: #ff006e;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(180deg, #0a1628 0%, #051420 50%, #0a1e35 100%);
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .cursor {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 25px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 60px;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.6); }
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        h1 {
+            font-size: clamp(50px, 8vw, 120px);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -4px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(18px, 3vw, 24px);
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .btn {
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        section {
+            padding: 40px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: clamp(40px, 6vw, 70px);
+            font-weight: 900;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+            margin-bottom: 60px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(157, 78, 221, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .card-desc {
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            padding: 6px 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            background: rgba(0, 255, 136, 0.05);
+            border-color: var(--primary);
+        }
+
+        .skill-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+
+        .skill-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .timeline {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 30px var(--primary);
+            z-index: 2;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.02);
+            background: rgba(0, 255, 136, 0.05);
+            border-color: var(--primary);
+        }
+
+        .timeline-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .timeline-company {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .timeline-desc {
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            grid-column: 1;
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(even) .timeline-date {
+            grid-column: 2;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            grid-column: 2;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-date {
+            grid-column: 1;
+            text-align: right;
+        }
+
+        .contact-section {
+            text-align: center;
+            padding: 80px 60px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(157, 78, 221, 0.05));
+            border-radius: 40px;
+            margin: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1), transparent 60%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 50px auto 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-card {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            transition: all 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .contact-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .contact-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .contact-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .contact-value a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-value a:hover {
+            color: var(--primary);
+        }
+
+        footer {
+            padding: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            nav, section, footer {
+                padding: 20px 30px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            h1 {
+                font-size: 50px;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-dot {
+                left: 30px;
+            }
+
+            .timeline-item:nth-child(even) .timeline-content,
+            .timeline-item:nth-child(odd) .timeline-content {
+                grid-column: 1;
+                text-align: left;
+                margin-left: 60px;
+            }
+
+            .timeline-item:nth-child(even) .timeline-date,
+            .timeline-item:nth-child(odd) .timeline-date {
+                grid-column: 1;
+                text-align: left;
+                margin-left: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="three-container"></div>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <div class="content-wrapper">
+        <nav>
+            <div class="logo">MSR</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    <span>Available for Hire</span>
+                </div>
+                <h1>Building AI<br/>That Transforms<br/><span class="gradient-text">The Future</span></h1>
+                <p class="hero-subtitle">
+                    Gen AI Engineer specializing in LLMs, RAG systems, and autonomous agents. 
+                    Creating intelligent solutions that drive real business value.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#projects" class="btn btn-primary">View My Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
+            <p class="section-subtitle">
+                I'm Manobhi Sri Ram, a Gen AI Engineer passionate about creating intelligent systems. 
+                From LLM orchestration to production AI applications, I bring ideas to life with cutting-edge technology.
+            </p>
+        </section>
+
+        <section id="skills">
+            <h2 class="section-title">Tech <span class="gradient-text">Stack</span></h2>
+            <p class="section-subtitle">Technologies I use to build innovative AI solutions</p>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" class="skill-icon">
+                    <div class="skill-name">Python</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" class="skill-icon">
+                    <div class="skill-name">PyTorch</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" class="skill-icon">
+                    <div class="skill-name">TensorFlow</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" class="skill-icon">
+                    <div class="skill-name">React</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" class="skill-icon">
+                    <div class="skill-name">Node.js</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" class="skill-icon">
+                    <div class="skill-name">Docker</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" class="skill-icon">
+                    <div class="skill-name">Kubernetes</div>
+                </div>
+                <div class="skill-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg" class="skill-icon">
+                    <div class="skill-name">AWS</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects">
+            <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+            <p class="section-subtitle">AI solutions serving thousands of users in production</p>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">🤖</span>
+                        <h3 class="card-title">Enterprise AI Chatbot</h3>
+                        <p class="card-desc">
+                            Intelligent conversational AI with GPT-4 and custom RAG pipeline. Handles 10K+ daily queries with 95% accuracy.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">GPT-4</span>
+                            <span class="tag">LangChain</span>
+                            <span class="tag">Pinecone</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">📄</span>
+                        <h3 class="card-title">Document Intelligence</h3>
+                        <p class="card-desc">
+                            Advanced document processing with Claude and custom embeddings. 98% accuracy across 100K+ documents.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">Claude</span>
+                            <span class="tag">Weaviate</span>
+                            <span class="tag">Python</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">🔄</span>
+                        <h3 class="card-title">Multi-Agent System</h3>
+                        <p class="card-desc">
+                            Autonomous AI agents for workflow automation. Improved productivity by 3x with intelligent task delegation.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">AutoGPT</span>
+                            <span class="tag">LangGraph</span>
+                            <span class="tag">Redis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">📊</span>
+                        <h3 class="card-title">Sentiment Analysis</h3>
+                        <p class="card-desc">
+                            Real-time sentiment analysis processing 1M+ texts daily with fine-tuned transformer models.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">PyTorch</span>
+                            <span class="tag">HuggingFace</span>
+                            <span class="tag">FastAPI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">🔍</span>
+                        <h3 class="card-title">Knowledge Base AI</h3>
+                        <p class="card-desc">
+                            Production RAG system with semantic search. 10x faster retrieval with context-aware responses.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">GPT-4</span>
+                            <span class="tag">ChromaDB</span>
+                            <span class="tag">LlamaIndex</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-icon">👁️</span>
+                        <h3 class="card-title">AI Visual Search</h3>
+                        <p class="card-desc">
+                            Visual search engine using CLIP embeddings. Processes 50K images with 92% accuracy.
+                        </p>
+                        <div class="tech-tags">
+                            <span class="tag">CLIP</span>
+                            <span class="tag">Pinecone</span>
+                            <span class="tag">Next.js</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience">
+            <h2 class="section-title">My <span class="gradient-text">Journey</span></h2>
+            <p class="section-subtitle">Years of experience delivering impactful AI solutions</p>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2022 - Present</div>
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <h3 class="timeline-title">Senior Gen AI Engineer</h3>
+                        <div class="timeline-company">AI Innovations Lab</div>
+                        <p class="timeline-desc">
+                            Leading enterprise AI solutions using GPT-4, Claude, and custom LLMs. Architected RAG systems serving 100K+ users.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2020 - 2022</div>
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <h3 class="timeline-title">Full Stack AI Developer</h3>
+                        <div class="timeline-company">Tech Ventures Inc</div>
+                        <p class="timeline-desc">
+                            Developed ML-powered applications with React and Python. Created chatbots and NLP pipelines serving 1M+ requests daily.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2019 - 2020</div>
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <h3 class="timeline-title">AI/ML Engineer</h3>
+                        <div class="timeline-company">StartupX</div>
+                        <p class="timeline-desc">
+                            Built computer vision models and NLP solutions. Optimized performance achieving 40% faster inference times.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-section" id="contact">
+            <h2 class="section-title">Let's <span class="gradient-text">Connect</span></h2>
+            <p class="section-subtitle">Ready to build something amazing together?</p>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <span class="contact-icon">📧</span>
+                    <div class="contact-label">Email</div>
+                    <div class="contact-value">
+                        <a href="mailto:manobhi@ai.com">manobhi@ai.com</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <span class="contact-icon">💼</span>
+                    <div class="contact-label">LinkedIn</div>
+                    <div class="contact-value">
+                        <a href="https://linkedin.com" target="_blank">linkedin.com/manobhi</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <span class="contact-icon">💻</span>
+                    <div class="contact-label">GitHub</div>
+                    <div class="contact-value">
+                        <a href="https://github.com" target="_blank">github.com/manobhisriram</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul class="footer-links">
+                        <li><a href="#about">About Me</a></li>
+                        <li><a href="#skills">Skills</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">AI Consulting</a></li>
+                        <li><a href="#">LLM Development</a></li>
+                        <li><a href="#">RAG Systems</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="https://linkedin.com" class="social-icon">💼</a>
+                        <a href="https://github.com" class="social-icon">💻</a>
+                        <a href="https://twitter.com" class="social-icon">🐦</a>
+                        <a href="mailto:manobhi@ai.com" class="social-icon">📧</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Manobhi Sri Ram. Built with Three.js & AI ❤️</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x0a1628, 50, 300);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        camera.position.set(0, 30, 80);
+        camera.lookAt(0, 0, 0);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0x00ff88, 1);
+        directionalLight.position.set(50, 50, 50);
+        scene.add(directionalLight);
+
+        const pointLight1 = new THREE.PointLight(0x9d4edd, 2, 100);
+        pointLight1.position.set(-50, 30, -20);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xff006e, 2, 100);
+        pointLight2.position.set(50, 30, -20);
+        scene.add(pointLight2);
+
+        // Create Rolling Hills Terrain
+        const terrainGeometry = new THREE.PlaneGeometry(400, 400, 100, 100);
+        const vertices = terrainGeometry.attributes.position.array;
+
+        for (let i = 0; i < vertices.length; i += 3) {
+            const x = vertices[i];
+            const y = vertices[i + 1];
+            
+            // Create multiple wave patterns for realistic hills
+            vertices[i + 2] = 
+                Math.sin(x * 0.05) * 8 + 
+                Math.cos(y * 0.05) * 8 +
+                Math.sin(x * 0.1 + y * 0.1) * 4 +
+                Math.sin(x * 0.02) * 12 +
+                Math.cos(y * 0.03) * 10;
+        }
+
+        terrainGeometry.computeVertexNormals();
+
+        const terrainMaterial = new THREE.MeshPhongMaterial({
+            color: 0x1a4d2e,
+            flatShading: true,
+            shininess: 5,
+            wireframe: false
+        });
+
+        const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+        terrain.rotation.x = -Math.PI / 2;
+        terrain.position.y = -20;
+        scene.add(terrain);
+
+        // Add Trees/Vegetation (small cones on hills)
+        const treeGeometry = new THREE.ConeGeometry(2, 8, 6);
+        const treeMaterial = new THREE.MeshPhongMaterial({ color: 0x0d3d1f });
+
+        for (let i = 0; i < 50; i++) {
+            const tree = new THREE.Mesh(treeGeometry, treeMaterial);
+            const x = (Math.random() - 0.5) * 300;
+            const z = (Math.random() - 0.5) * 300;
+            const y = Math.sin(x * 0.05) * 8 + Math.cos(z * 0.05) * 8 - 16;
+            
+            tree.position.set(x, y, z);
+            tree.scale.set(
+                0.5 + Math.random() * 0.5,
+                0.8 + Math.random() * 0.7,
+                0.5 + Math.random() * 0.5
+            );
+            scene.add(tree);
+        }
+
+        // Floating Orbs with glow effect
+        const orbs = [];
+        const orbGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+        
+        for (let i = 0; i < 15; i++) {
+            const orbMaterial = new THREE.MeshPhongMaterial({
+                color: [0x00ff88, 0x9d4edd, 0xff006e][Math.floor(Math.random() * 3)],
+                emissive: [0x00ff88, 0x9d4edd, 0xff006e][Math.floor(Math.random() * 3)],
+                emissiveIntensity: 0.5,
+                shininess: 100
+            });
+            
+            const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+            orb.position.set(
+                (Math.random() - 0.5) * 150,
+                Math.random() * 40 + 10,
+                (Math.random() - 0.5) * 150
+            );
+            
+            orb.userData = {
+                speedX: (Math.random() - 0.5) * 0.02,
+                speedY: (Math.random() - 0.5) * 0.02,
+                speedZ: (Math.random() - 0.5) * 0.02
+            };
+            
+            scene.add(orb);
+            orbs.push(orb);
+        }
+
+        // Particle Stars
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 3000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 500;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.5,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Interactive Cursor Trail Effect
+        const cursorSpheres = [];
+        for (let i = 0; i < 10; i++) {
+            const sphereGeo = new THREE.SphereGeometry(2, 16, 16);
+            const sphereMat = new THREE.MeshPhongMaterial({
+                color: 0x00ff88,
+                transparent: true,
+                opacity: 0.3 - i * 0.02,
+                emissive: 0x00ff88,
+                emissiveIntensity: 0.5
+            });
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            sphere.visible = false;
+            scene.add(sphere);
+            cursorSpheres.push(sphere);
+        }
+
+        // Mouse Movement
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update cursor trail
+            const vector = new THREE.Vector3(mouseX, mouseY, 0.5);
+            vector.unproject(camera);
+            const dir = vector.sub(camera.position).normalize();
+            const distance = -camera.position.z / dir.z;
+            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            
+            if (cursorSpheres[0]) {
+                cursorSpheres[0].position.copy(pos);
+                cursorSpheres[0].visible = true;
+            }
+        });
+
+        // Animation Loop
+        let frame = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            frame++;
+
+            // Smooth camera movement
+            targetX = mouseX * 15;
+            targetY = mouseY * 10;
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (30 + targetY - camera.position.y) * 0.05;
+            camera.lookAt(0, 0, 0);
+
+            // Animate terrain waves
+            const time = Date.now() * 0.0001;
+            const positions = terrain.geometry.attributes.position.array;
+            
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = positions[i];
+                const y = positions[i + 1];
+                positions[i + 2] = 
+                    Math.sin(x * 0.05 + time * 2) * 8 + 
+                    Math.cos(y * 0.05 + time * 2) * 8 +
+                    Math.sin(x * 0.1 + y * 0.1 + time) * 4 +
+                    Math.sin(x * 0.02) * 12 +
+                    Math.cos(y * 0.03) * 10;
+            }
+            terrain.geometry.attributes.position.needsUpdate = true;
+            terrain.geometry.computeVertexNormals();
+
+            // Animate floating orbs
+            orbs.forEach(orb => {
+                orb.position.x += orb.userData.speedX;
+                orb.position.y += orb.userData.speedY;
+                orb.position.z += orb.userData.speedZ;
+                
+                if (Math.abs(orb.position.x) > 80) orb.userData.speedX *= -1;
+                if (orb.position.y > 50 || orb.position.y < 5) orb.userData.speedY *= -1;
+                if (Math.abs(orb.position.z) > 80) orb.userData.speedZ *= -1;
+                
+                orb.rotation.x += 0.01;
+                orb.rotation.y += 0.01;
+            });
+
+            // Animate cursor trail
+            for (let i = cursorSpheres.length - 1; i > 0; i--) {
+                if (cursorSpheres[i - 1].visible) {
+                    cursorSpheres[i].position.lerp(cursorSpheres[i - 1].position, 0.3);
+                    cursorSpheres[i].visible = true;
+                }
+            }
+
+            // Rotate particles
+            particlesMesh.rotation.y += 0.0002;
+
+            // Animate lights
+            pointLight1.position.x = Math.sin(time * 2) * 50;
+            pointLight1.position.z = Math.cos(time * 2) * 50;
+            pointLight2.position.x = Math.cos(time * 2) * 50;
+            pointLight2.position.z = Math.sin(time * 2) * 50;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        let cursorX = 0, cursorY = 0;
+        let followerX = 0, followerY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+
+        function animateCursor() {
+            followerX += (cursorX - followerX) * 0.1;
+            followerY += (cursorY - followerY) * 0.1;
+
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            cursorFollower.style.left = followerX + 'px';
+            cursorFollower.style.top = followerY + 'px';
+
+            requestAnimationFrame(animateCursor);
+        }
+
+        animateCursor();
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll Reveal Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card, .skill-card, .timeline-item, .contact-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(50px)';
+            el.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            observer.observe(el);
+        });
+
+        // Parallax Effect on Scroll
+        let scrollY = 0;
+
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+            
+            // Move 3D objects based on scroll
+            torus.position.y = 10 - scrollY * 0.01;
+            octahedron.position.y = -15 + scrollY * 0.008;
+            icosahedron.position.y = -20 - scrollY * 0.012;
+            
+            particlesMesh.rotation.z = scrollY * 0.0002;
+        });
+    </script>
+</body>
+</html>
