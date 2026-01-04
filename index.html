@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manobhi Sri Ram - Gen AI Engineer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,13 +19,13 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: linear-gradient(180deg, #0a1628 0%, #051420 50%, #0a1e35 100%);
+            background: #0a1420;
             color: #fff;
             overflow-x: hidden;
             cursor: none;
         }
 
-        #three-container {
+        #canvas-bg {
             position: fixed;
             top: 0;
             left: 0;
@@ -37,23 +36,39 @@
 
         .cursor {
             position: fixed;
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
+            transition: transform 0.15s ease;
         }
 
         .cursor-follower {
             position: fixed;
             width: 40px;
             height: 40px;
-            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .content-wrapper {
@@ -70,8 +85,8 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 20, 32, 0.7);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -658,7 +673,7 @@
     </style>
 </head>
 <body>
-    <div id="three-container"></div>
+    <canvas id="canvas-bg"></canvas>
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
 
@@ -934,260 +949,134 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 Manobhi Sri Ram. Built with Three.js & AI ❤️</p>
+                <p>© 2026 Manobhi Sri Ram. Built with Canvas & AI ❤️</p>
             </div>
         </footer>
     </div>
 
     <script>
-        // Three.js Scene Setup
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x0a1628, 50, 300);
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
         
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('three-container').appendChild(renderer.domElement);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        camera.position.set(0, 30, 80);
-        camera.lookAt(0, 0, 0);
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0x00ff88, 1);
-        directionalLight.position.set(50, 50, 50);
-        scene.add(directionalLight);
-
-        const pointLight1 = new THREE.PointLight(0x9d4edd, 2, 100);
-        pointLight1.position.set(-50, 30, -20);
-        scene.add(pointLight1);
-
-        const pointLight2 = new THREE.PointLight(0xff006e, 2, 100);
-        pointLight2.position.set(50, 30, -20);
-        scene.add(pointLight2);
-
-        // Create Rolling Hills Terrain
-        const terrainGeometry = new THREE.PlaneGeometry(400, 400, 100, 100);
-        const vertices = terrainGeometry.attributes.position.array;
-
-        for (let i = 0; i < vertices.length; i += 3) {
-            const x = vertices[i];
-            const y = vertices[i + 1];
-            
-            // Create multiple wave patterns for realistic hills
-            vertices[i + 2] = 
-                Math.sin(x * 0.05) * 8 + 
-                Math.cos(y * 0.05) * 8 +
-                Math.sin(x * 0.1 + y * 0.1) * 4 +
-                Math.sin(x * 0.02) * 12 +
-                Math.cos(y * 0.03) * 10;
-        }
-
-        terrainGeometry.computeVertexNormals();
-
-        const terrainMaterial = new THREE.MeshPhongMaterial({
-            color: 0x1a4d2e,
-            flatShading: true,
-            shininess: 5,
-            wireframe: false
-        });
-
-        const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-        terrain.rotation.x = -Math.PI / 2;
-        terrain.position.y = -20;
-        scene.add(terrain);
-
-        // Add Trees/Vegetation (small cones on hills)
-        const treeGeometry = new THREE.ConeGeometry(2, 8, 6);
-        const treeMaterial = new THREE.MeshPhongMaterial({ color: 0x0d3d1f });
-
-        for (let i = 0; i < 50; i++) {
-            const tree = new THREE.Mesh(treeGeometry, treeMaterial);
-            const x = (Math.random() - 0.5) * 300;
-            const z = (Math.random() - 0.5) * 300;
-            const y = Math.sin(x * 0.05) * 8 + Math.cos(z * 0.05) * 8 - 16;
-            
-            tree.position.set(x, y, z);
-            tree.scale.set(
-                0.5 + Math.random() * 0.5,
-                0.8 + Math.random() * 0.7,
-                0.5 + Math.random() * 0.5
-            );
-            scene.add(tree);
-        }
-
-        // Floating Orbs with glow effect
-        const orbs = [];
-        const orbGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-        
-        for (let i = 0; i < 15; i++) {
-            const orbMaterial = new THREE.MeshPhongMaterial({
-                color: [0x00ff88, 0x9d4edd, 0xff006e][Math.floor(Math.random() * 3)],
-                emissive: [0x00ff88, 0x9d4edd, 0xff006e][Math.floor(Math.random() * 3)],
-                emissiveIntensity: 0.5,
-                shininess: 100
-            });
-            
-            const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-            orb.position.set(
-                (Math.random() - 0.5) * 150,
-                Math.random() * 40 + 10,
-                (Math.random() - 0.5) * 150
-            );
-            
-            orb.userData = {
-                speedX: (Math.random() - 0.5) * 0.02,
-                speedY: (Math.random() - 0.5) * 0.02,
-                speedZ: (Math.random() - 0.5) * 0.02
-            };
-            
-            scene.add(orb);
-            orbs.push(orb);
-        }
-
-        // Particle Stars
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 3000;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 500;
-        }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.5,
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.8
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        // Interactive Cursor Trail Effect
-        const cursorSpheres = [];
-        for (let i = 0; i < 10; i++) {
-            const sphereGeo = new THREE.SphereGeometry(2, 16, 16);
-            const sphereMat = new THREE.MeshPhongMaterial({
-                color: 0x00ff88,
-                transparent: true,
-                opacity: 0.3 - i * 0.02,
-                emissive: 0x00ff88,
-                emissiveIntensity: 0.5
-            });
-            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-            sphere.visible = false;
-            scene.add(sphere);
-            cursorSpheres.push(sphere);
-        }
-
-        // Mouse Movement
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-            
-            // Update cursor trail
-            const vector = new THREE.Vector3(mouseX, mouseY, 0.5);
-            vector.unproject(camera);
-            const dir = vector.sub(camera.position).normalize();
-            const distance = -camera.position.z / dir.z;
-            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
-            
-            if (cursorSpheres[0]) {
-                cursorSpheres[0].position.copy(pos);
-                cursorSpheres[0].visible = true;
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.1;
             }
-        });
 
-        // Animation Loop
-        let frame = 0;
-        function animate() {
-            requestAnimationFrame(animate);
-            frame++;
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
 
-            // Smooth camera movement
-            targetX = mouseX * 15;
-            targetY = mouseY * 10;
-            camera.position.x += (targetX - camera.position.x) * 0.05;
-            camera.position.y += (30 + targetY - camera.position.y) * 0.05;
-            camera.lookAt(0, 0, 0);
-
-            // Animate terrain waves
-            const time = Date.now() * 0.0001;
-            const positions = terrain.geometry.attributes.position.array;
-            
-            for (let i = 0; i < positions.length; i += 3) {
-                const x = positions[i];
-                const y = positions[i + 1];
-                positions[i + 2] = 
-                    Math.sin(x * 0.05 + time * 2) * 8 + 
-                    Math.cos(y * 0.05 + time * 2) * 8 +
-                    Math.sin(x * 0.1 + y * 0.1 + time) * 4 +
-                    Math.sin(x * 0.02) * 12 +
-                    Math.cos(y * 0.03) * 10;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
             }
-            terrain.geometry.attributes.position.needsUpdate = true;
-            terrain.geometry.computeVertexNormals();
 
-            // Animate floating orbs
-            orbs.forEach(orb => {
-                orb.position.x += orb.userData.speedX;
-                orb.position.y += orb.userData.speedY;
-                orb.position.z += orb.userData.speedZ;
-                
-                if (Math.abs(orb.position.x) > 80) orb.userData.speedX *= -1;
-                if (orb.position.y > 50 || orb.position.y < 5) orb.userData.speedY *= -1;
-                if (Math.abs(orb.position.z) > 80) orb.userData.speedZ *= -1;
-                
-                orb.rotation.x += 0.01;
-                orb.rotation.y += 0.01;
-            });
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
 
-            // Animate cursor trail
-            for (let i = cursorSpheres.length - 1; i > 0; i--) {
-                if (cursorSpheres[i - 1].visible) {
-                    cursorSpheres[i].position.lerp(cursorSpheres[i - 1].position, 0.3);
-                    cursorSpheres[i].visible = true;
+        class Wave {
+            constructor(y, amplitude, frequency, speed, color) {
+                this.y = y;
+                this.amplitude = amplitude;
+                this.frequency = frequency;
+                this.speed = speed;
+                this.color = color;
+                this.phase = 0;
+            }
+
+            update() {
+                this.phase += this.speed;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+
+                for (let x = 0; x < canvas.width; x++) {
+                    const y = this.y + Math.sin(x * this.frequency + this.phase) * this.amplitude;
+                    ctx.lineTo(x, y);
                 }
+
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fillStyle = this.color;
+                ctx.fill();
             }
+        }
 
-            // Rotate particles
-            particlesMesh.rotation.y += 0.0002;
+        const particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Particle());
+        }
 
-            // Animate lights
-            pointLight1.position.x = Math.sin(time * 2) * 50;
-            pointLight1.position.z = Math.cos(time * 2) * 50;
-            pointLight2.position.x = Math.cos(time * 2) * 50;
-            pointLight2.position.z = Math.sin(time * 2) * 50;
+        const waves = [
+            new Wave(canvas.height * 0.8, 30, 0.01, 0.02, 'rgba(10, 30, 50, 0.3)'),
+            new Wave(canvas.height * 0.85, 25, 0.012, 0.015, 'rgba(15, 40, 60, 0.25)'),
+            new Wave(canvas.height * 0.9, 20, 0.015, 0.01, 'rgba(20, 50, 70, 0.2)')
+        ];
 
-            renderer.render(scene, camera);
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a1420');
+            gradient.addColorStop(0.5, '#0d1a2d');
+            gradient.addColorStop(1, '#0a1e35');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            waves.forEach(wave => {
+                wave.update();
+                wave.draw();
+            });
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            requestAnimationFrame(animate);
         }
 
         animate();
 
-        // Handle Window Resize
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
 
-        // Custom Cursor
         const cursor = document.querySelector('.cursor');
         const cursorFollower = document.querySelector('.cursor-follower');
 
         let cursorX = 0, cursorY = 0;
         let followerX = 0, followerY = 0;
+
+        const trails = [];
+        for (let i = 0; i < 8; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trails.push({
+                el: trail,
+                x: 0,
+                y: 0
+            });
+        }
 
         document.addEventListener('mousemove', (e) => {
             cursorX = e.clientX;
@@ -1200,15 +1089,35 @@
 
             cursor.style.left = cursorX + 'px';
             cursor.style.top = cursorY + 'px';
-            cursorFollower.style.left = followerX + 'px';
-            cursorFollower.style.top = followerY + 'px';
+            cursorFollower.style.left = (followerX - 20) + 'px';
+            cursorFollower.style.top = (followerY - 20) + 'px';
+
+            trails.forEach((trail, index) => {
+                const nextTrail = trails[index - 1] || { x: followerX, y: followerY };
+                trail.x += (nextTrail.x - trail.x) * 0.3;
+                trail.y += (nextTrail.y - trail.y) * 0.3;
+                
+                trail.el.style.left = (trail.x - 3) + 'px';
+                trail.el.style.top = (trail.y - 3) + 'px';
+                trail.el.style.opacity = (0.5 - index * 0.06);
+            });
 
             requestAnimationFrame(animateCursor);
         }
 
         animateCursor();
 
-        // Smooth Scroll
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.5)';
+                cursorFollower.style.transform = 'scale(1.5)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursorFollower.style.transform = 'scale(1)';
+            });
+        });
+
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1222,7 +1131,6 @@
             });
         });
 
-        // Scroll Reveal Animations
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -100px 0px'
@@ -1242,20 +1150,6 @@
             el.style.transform = 'translateY(50px)';
             el.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
             observer.observe(el);
-        });
-
-        // Parallax Effect on Scroll
-        let scrollY = 0;
-
-        window.addEventListener('scroll', () => {
-            scrollY = window.scrollY;
-            
-            // Move 3D objects based on scroll
-            torus.position.y = 10 - scrollY * 0.01;
-            octahedron.position.y = -15 + scrollY * 0.008;
-            icosahedron.position.y = -20 - scrollY * 0.012;
-            
-            particlesMesh.rotation.z = scrollY * 0.0002;
         });
     </script>
 </body>
