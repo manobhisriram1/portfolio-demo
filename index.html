@@ -1277,7 +1277,7 @@ function showWorld() {
   document.getElementById("topSection").style.display = "block";
   backBtn.style.display = "none";
 
-  map.setView([20, 0], 2);
+  map.setView([15, 0], 2);
 
   Object.entries(countries).forEach(([name, c]) => {
     const m = L.circleMarker([c.lat, c.lng], {
@@ -1774,6 +1774,7 @@ function handleHomeClick() {
 
 </body>
 </html>
+
 
 
 
