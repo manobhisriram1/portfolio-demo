@@ -1022,7 +1022,7 @@ const SHEET_ID = "14Bz3QibO5MWiOjaF-pvSfDs3enW5Nd6R";
 const SHEET_NAME = "UPDATED";
 
 /* ================= MAP INIT ================= */
-let map = L.map("map").setView([20, 0], 2);
+let map = L.map("map").setView([14, 0], 2);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
 // After flex layout settles, fix map size
@@ -1277,7 +1277,7 @@ function showWorld() {
   document.getElementById("topSection").style.display = "block";
   backBtn.style.display = "none";
 
-  map.setView([15, 0], 2);
+  map.setView([14, 0], 2);
 
   Object.entries(countries).forEach(([name, c]) => {
     const m = L.circleMarker([c.lat, c.lng], {
